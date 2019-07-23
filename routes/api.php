@@ -5,6 +5,7 @@ Route::group([
     'prefix'     => 'auth',
 ], function ($router) {
     Route::post('login', 'AuthController@login');
+    Route::patch('update', 'AuthController@update');
     Route::post('register', 'AuthController@register');
     Route::post('logout', 'AuthController@logout');
     Route::post('refresh', 'AuthController@refresh');

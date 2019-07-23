@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends Controller
 {
@@ -22,19 +24,29 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function login()
+    public function login(Request $request)
     {
+        $request->validate([
+            'email'   => 'required',
+            'password'=> 'required',
+        ]);
         $credentials = request(['email', 'password']);
 
         if (! $token = auth()->attempt($credentials)) {
-            return response()->json(['errors' => 'Unauthorized'], 401);
+            return response()->json(['errors' => ['result'=>'Unauthorized']], 401);
         }
 
         return $this->respondWithToken($token);
     }
 
-    public function register()
+    public function register(Request $request)
     {
+        $request->validate([
+            'name'    => 'required',
+            'email'   => 'required',
+            'password'=> 'required|confirmed',
+        ]);
+
         User::create([
             'name'     => request('name'),
             'email'    => request('email'),
@@ -52,6 +64,17 @@ class AuthController extends Controller
     public function me()
     {
         return response()->json(auth()->user());
+    }
+
+    /**
+     * Update the authenticated User.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function update(Request $request)
+    {
+        auth()->user()->update($request->all());
+        return response('update', Response::HTTP_ACCEPTED);
     }
 
     /**
